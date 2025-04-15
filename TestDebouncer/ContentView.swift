@@ -8,12 +8,25 @@
 import SwiftUI
 
 struct ContentView: View {
+    @State var searchText = ""
+    @State var searchQuery = ""
+    let debouncer = Debouncer(delay: 1)
+
     var body: some View {
         VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+            TextField("Search", text: $searchText)
+                .onChange(of: searchText) { _, newValue in
+                    Task {
+                        await debouncer.debounce() {
+                            searchQuery = newValue
+                        }
+                    }
+                }
+
+            Text("Searching for: \(searchQuery)")
+
+            Spacer()
+                .frame(minHeight: 0) // get a warning without this
         }
         .padding()
     }
